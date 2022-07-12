@@ -10,6 +10,7 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2000)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2000)
 while(cap.isOpened()):#循环读取每一帧0
     ret_flag, img = cap.read()
+    cv2.imshow('ori', img)
     h,  w = img.shape[:2]
     newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),0,(w,h))
 
