@@ -25,12 +25,12 @@ class myCheckSum():
         twoResultLen = len( twoResult[2:])     
         if calLen*4 > twoResultLen:
             subLen = calLen*4 - twoResultLen
-            twoResult = '0'*subLen + twoResult[2:]
+            twoResult = '0b' + '0'*subLen + twoResult[2:]
         if len(twoResult[2:]) < 8:
             subL = 8 - len(twoResult[2:])
-            twoResult = '0'*subL + twoResult[2:]
+            twoResult = '0b' + '0'*subL + twoResult[2:]
         reverseResult = '0b'
-        for i in twoResult:
+        for i in twoResult[2:]:
             if i == '1':
                 reverseResult += '0'
             else:
@@ -38,8 +38,8 @@ class myCheckSum():
         self.result = '0x' + str.upper(hex(eval(reverseResult))[-2:])
 
 # Test Cases
-# data1 = [0x03, 0x09, 0x03, 0x2a, 0x40, 0x1f, 0x00, 0x00, 0x00, 0x00]    #0x67
-# data2 = [0x01, 0x02]    #0xFC
-# data3 = [0xfe, 0x04, 0x03, 0x05, 0x01]  #0xF4
+data1 = [0x03, 0x09, 0x03, 0x2a, 0x40, 0x1f, 0x00, 0x00, 0x00, 0x00]    #0x67
+data2 = [0x01, 0x02]    #0xFC
+data3 = [0xfe, 0x04, 0x03, 0x05, 0x01]  #0xF4
 
-# print(myCheckSum(data1).get(), myCheckSum(data2).get(), myCheckSum(data3).get())
+print(myCheckSum(data1).get(), myCheckSum(data2).get(), myCheckSum(data3).get())
