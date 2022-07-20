@@ -15,12 +15,12 @@ objp[:,:2] = np.mgrid[0:w,0:h].T.reshape(-1,2)
 objpoints = [] # 在世界坐标系中的三维点
 imgpoints = [] # 在图像平面的二维点
 
-cam = cv2.VideoCapture(1)
+cam = cv2.VideoCapture(0)
 while(cam.isOpened()):
-    ret, frame = cam.read()
+    retR, frame = cam.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    ret, corners = cv2.findChessboardCorners(gray, (w,h))
-    if ret == True:
+    retF, corners = cv2.findChessboardCorners(gray, (w,h))
+    if retF == True:
         #精确找到角点坐标
         corners = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
 
@@ -28,17 +28,17 @@ while(cam.isOpened()):
         objpoints.append(objp)
         imgpoints.append(corners)
          # 将角点在图像上显示
-        cv2.drawChessboardCorners(frame, (w,h), corners, ret)
+        cv2.drawChessboardCorners(frame, (w,h), corners, retF)
         cv2.imshow('findCorners', frame)
-        time.sleep(2)
-        k = cv2.waitKey(100)
-        if k == 27:
-            break
+        print('Find one, hold 5s for adjust.')
+        time.sleep(5)
+    if cv2.waitKey(10) == 27:
+        break
 cv2.destroyAllWindows()
 
 # 标定
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-np.save('mtx3.npy', mtx)
-np.save('dist3.npy', dist)
+np.save('./Cali_params/mtx.npy', mtx)
+np.save('./Cali_params/dist.npy', dist)
 print('done!')
