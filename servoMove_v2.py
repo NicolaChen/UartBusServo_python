@@ -23,6 +23,7 @@ def FTMove_T(id, p, t, v):
     buf[9] = getHighByte(t)
     buf[10] = getLowByte(v)
     buf[11] = getHighByte(v)
+    print(CheckSum(buf[2:-1]).get()[2:])
     buf[12] = int(CheckSum(buf[2:-1]).get()[2:], 16)
     return buf
 
@@ -40,6 +41,10 @@ def FTMove_C(id, p, t, v):
     buf[10] = getHighByte(v)
     buf[11] = getLowByte(v)
     buf[12] = int(CheckSum(buf[2:-1]).get()[2:], 16)
+    print(buf)
+    print(CheckSum(buf[2:-1]).get()[2:])
+    print('\n')
+    
     return buf
 
 def HWMove(id, p, t):
@@ -73,38 +78,53 @@ def HWMove(id, p, t):
 # print(default_tx)
 # print(FTMove(1, 2048, 0, 1000))
 
+id=4
+pos=980
+stp=2
+k=1
+lim=1023
 mySerial = serial.Serial('/dev/ttyS4', 115200, 8)
-while True:
-    mySerial.write(bytes(FTMove_T(1, 0, 0, 0)))		#bytes() and bytearray() both work
-    time.sleep(0.1)
-    mySerial.write(bytes(HWMove(3, 0, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(4, 0, 0, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(5, 0, 0, 0)))
-    time.sleep(4)
-    mySerial.write(bytes(FTMove_T(1, 4095, 0, 0)))		#bytes() and bytearray() both work
-    time.sleep(0.1)
-    mySerial.write(bytes(HWMove(3, 1000, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(4, 1023, 0, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(5, 1023, 0, 0)))
-    time.sleep(4)
-    mySerial.write(bytes(FTMove_T(1, 2048, 0, 0)))		#bytes() and bytearray() both work
-    time.sleep(0.1)
-    mySerial.write(bytes(HWMove(3, 500, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(4, 512, 0, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(5, 512, 0, 0)))
-    time.sleep(4)
-    mySerial.write(bytes(FTMove_T(1, 1024, 0, 0)))		#bytes() and bytearray() both work
-    time.sleep(0.1)
-    mySerial.write(bytes(HWMove(3, 250, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(4, 256, 0, 0)))
-    time.sleep(0.1)
-    mySerial.write(bytes(FTMove_C(5, 256, 0, 0)))
-    time.sleep(4)
 
+# mySerial.write(bytes(FTMove_C(id, 0, 0, 0)))
+while True:
+#    mySerial.write(bytes(FTMove_T(1, 300, 0, 0)))		#bytes() and bytearray() both work
+#    time.sleep(0.1)
+#    mySerial.write(bytes(HWMove(3, 481, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(4, 1023, 0, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(5, 0, 0, 0)))
+#    time.sleep(2)
+#    mySerial.write(bytes(FTMove_T(1, 800, 0, 0)))		#bytes() and bytearray() both work
+#    time.sleep(0.1)
+#    mySerial.write(bytes(HWMove(3, 451, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(4, 900, 0, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(5, 1023, 0, 0)))
+#    time.sleep(2)
+#    mySerial.write(bytes(FTMove_T(1, 2500-4, 0, 0)))		#bytes() and bytearray() both work
+#    time.sleep(0.1)
+#    mySerial.write(bytes(HWMove(3, 484, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(4,1003, 0, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(5, 512, 0, 0)))
+#    time.sleep(2)
+#    mySerial.write(bytes(FTMove_T(1, 2514+4, 0, 0)))		#bytes() and bytearray() both work
+#    time.sleep(0.1)
+#    mySerial.write(bytes(HWMove(3, 250, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(4, 900, 0, 0)))
+#    time.sleep(0.1)
+#    mySerial.write(bytes(FTMove_C(5, 256, 0, 0)))
+#    time.sleep(2)
+    mySerial.write(bytes(FTMove_C(id, pos, 0, 0)))
+    pos+=k*stp
+    if pos>lim:
+        pos = lim
+        k=-1
+    elif pos <= 0:
+        pos = 0
+        k=1
+    time.sleep(1)
