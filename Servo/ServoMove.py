@@ -1,5 +1,5 @@
-from Servo.uart_servo.MyCheckSum import MyCheckSum as CheckSum
-from Servo.pwm_servo.PCA9685 import PCA9685
+from uart_servo.MyCheckSum import MyCheckSum as CheckSum
+from pwm_servo.PCA9685 import PCA9685
 
 
 class ServoMove:
