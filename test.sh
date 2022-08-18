@@ -17,7 +17,7 @@ echo $fin1
 sleep 1s
 
 echo "Input testing position 2(deg, 0~360)"
-read tp2
+read -r tp2
 fin2=$((500000+$tp2*50000/9))
 echo $fin2
 sleep 1s
