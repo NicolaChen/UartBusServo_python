@@ -1,6 +1,10 @@
-from uart_servo.MyCheckSum import MyCheckSum as CheckSum
-from pwm_servo.PCA9685 import PCA9685
+import time
+
+import numpy
 import serial
+
+from pwm_servo.PCA9685 import PCA9685
+from uart_servo.MyCheckSum import MyCheckSum as CheckSum
 
 
 class ServoMove:
@@ -9,10 +13,13 @@ class ServoMove:
         self.step_range = [4096, 0, 0, 1024, 1024, 1024]
         self.angle_range = [360, 360, 360, 300, 300, 300]
         self.servo_type = ["FTT", "PWM", "PWM", "FTC", "FTC", "FTC"]
+        self.pwm_angle = [180, 180]
 
         self.serial = serial.Serial('/dev/ttyS4', 115200)
         self.pwm = PCA9685(0x40)
         self.pwm.setPWMFreq(50)
+        self.pwm.setServoPulse(0, 1500)
+        self.pwm.setServoPulse(1, 1500)
 
     def servoMove(self, angle_matrix):  # TODO: Figure out how duration and speed affect FTT/FTC
 
@@ -23,8 +30,17 @@ class ServoMove:
                 angle = self.angle_range[i]
 
             if self.servo_type[i] == "PWM":
-                pulse = 2000 * angle / self.angle_range[i] + 500
-                self.pwm.setServoPulse(i - 1, pulse)
+                old_angle = self.pwm_angle[i - 1]
+                step = 10
+                # stepper = (old_angle - angle) / 10
+                # for j in reversed(range(angle, old_angle, stepper)):
+                #     pulse = 2000 * j / self.angle_range[i] + 500
+                #     self.pwm.setServoPulse(j - 1, pulse)
+                for j in numpy.linspace(old_angle, angle, step):
+                    pulse = 2000 * j / self.angle_range[i] + 500
+                    self.pwm.setServoPulse(i - 1, pulse)
+                    time.sleep(0.1)
+                self.pwm_angle[i - 1] = angle
             else:
                 step = round(self.step_range[i] * angle / self.angle_range[i])
                 if self.servo_type[i] == "FTT":

@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
 # encoding:utf-8
-import sys
-
-sys.path.append('/home/pi/ArmPi/')
 import time
+
 import numpy as np
-from math import sqrt
-import matplotlib.pyplot as plt
+
 from InverseKinematics import *
-from Transform import getAngle
-from mpl_toolkits.mplot3d import Axes3D
-from HiwonderSDK.Board import setBusServoPulse, getBusServoPulse
 
 # 机械臂根据逆运动学算出的角度进行移动
 ik = IK()
@@ -20,25 +14,9 @@ ik.setLinkLength()
 
 
 class ArmIK:
-    servo3Range = (0, 1000, 0, 240.0)  # 脉宽， 角度
-    servo4Range = (0, 1000, 0, 240.0)
-    servo5Range = (0, 1000, 0, 240.0)
-    servo6Range = (0, 1000, 0, 240.0)
 
     def __init__(self):
-        self.setServoRange()
-
-    def setServoRange(self, servo3_Range=servo3Range, servo4_Range=servo4Range, servo5_Range=servo5Range,
-                      servo6_Range=servo6Range):
-        # 适配不同的舵机
-        self.servo3Range = servo3_Range
-        self.servo4Range = servo4_Range
-        self.servo5Range = servo5_Range
-        self.servo6Range = servo6_Range
-        self.servo3Param = (self.servo3Range[1] - self.servo3Range[0]) / (self.servo3Range[3] - self.servo3Range[2])
-        self.servo4Param = (self.servo4Range[1] - self.servo4Range[0]) / (self.servo4Range[3] - self.servo4Range[2])
-        self.servo5Param = (self.servo5Range[1] - self.servo5Range[0]) / (self.servo5Range[3] - self.servo5Range[2])
-        self.servo6Param = (self.servo6Range[1] - self.servo6Range[0]) / (self.servo6Range[3] - self.servo6Range[2])
+        pass
 
     def transformAngelAdaptArm(self, theta3, theta4, theta5, theta6):
         # 将逆运动学算出的角度转换为舵机对应的脉宽值
@@ -86,12 +64,12 @@ class ArmIK:
 
         return movetime
 
-    def setPitchRange(self, coordinate_data, alpha1, alpha2, da=1):
+    def setPitchRange(self, coordinate_s, alpha1, alpha2, da=1):
         # 给定坐标coordinate_data和俯仰角的范围alpha1，alpha2, 自动在范围内寻找到的合适的解
         # 如果无解返回False,否则返回对应舵机角度,俯仰角
         # 坐标单位cm， 以元组形式传入，例如(0, 5, 10)
         # da为俯仰角遍历时每次增加的角度
-        x, y, z = coordinate_data
+        x, y, z = coordinate_s
         if alpha1 >= alpha2:
             da = -da
         for alpha in np.arange(alpha1, alpha2, da):  # 遍历求解
@@ -104,14 +82,12 @@ class ArmIK:
 
         return False
 
-    def setPitchRangeMoving(self, coordinate_data, alpha, alpha1, alpha2, movetime=None):
-        # 给定坐标coordinate_data和俯仰角alpha,以及俯仰角范围的范围alpha1, alpha2，自动寻找最接近给定俯仰角的解，并转到目标位置
-        # 如果无解返回False,否则返回舵机角度、俯仰角、运行时间
-        # 坐标单位cm， 以元组形式传入，例如(0, 5, 10)
-        # alpha为给定俯仰角
-        # alpha1和alpha2为俯仰角的取值范围
-        # movetime为舵机转动时间，单位ms, 如果不给出时间，则自动计算
-        x, y, z = coordinate_data
+    def setPitchRangeMoving(self, coordinate_s, alpha, alpha1, alpha2, move_time=None):
+        # 给定坐标coordinate_s、滚转角rot_j4和俯仰角rot_j5，以及两角的范围r_rot_j4、r_rot_j5，自动寻找最接近给定两角的解，并转到目标位置
+        # 如果无解返回False,否则返回舵机角度、滚转角、俯仰角、运行时间
+        # 坐标单位mm， 以元组形式传入，例如(0, 50, 100)
+        # move_time为舵机转动时间，单位ms, 如果不给出时间，则自动计算
+        x, y, z = coordinate_s
         result1 = self.setPitchRange((x, y, z), alpha, alpha1)
         result2 = self.setPitchRange((x, y, z), alpha, alpha2)
         if result1 != False:
@@ -126,9 +102,9 @@ class ArmIK:
                 return False
         servos, alpha = data[0], data[1]
 
-        movetime = self.servosMove((servos["servo3"], servos["servo4"], servos["servo5"], servos["servo6"]), movetime)
+        move_time = self.servosMove((servos["servo3"], servos["servo4"], servos["servo5"], servos["servo6"]), move_time)
 
-        return servos, alpha, movetime
+        return servos, alpha, move_time
 
     '''
     #for test
