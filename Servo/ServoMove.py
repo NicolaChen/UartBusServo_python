@@ -28,9 +28,13 @@ class ServoMove:
             else:
                 step = round(self.step_range[i] * angle / self.angle_range[i])
                 if self.servo_type[i] == "FTT":
-                    serial_write_buf.append(bytes(self.ftMoveT(i + 1, step, angle_matrix[i][1], angle_matrix[i][2])))
+                    buf_t = bytes(self.ftMoveT(i + 1, step, angle_matrix[i][1], angle_matrix[i][2]))
+                    for j in buf_t:
+                        serial_write_buf.append(j)
                 elif self.servo_type[i] == "FTC":
-                    serial_write_buf.append(bytes(self.ftMoveC(i + 1, step, angle_matrix[i][1], angle_matrix[i][2])))
+                    buf_c = bytes(self.ftMoveC(i + 1, step, angle_matrix[i][1], angle_matrix[i][2]))
+                    for k in buf_c:
+                        serial_write_buf.append(k)
                 else:
                     print("Servo%2d move fail!" % (i + 1))
 
