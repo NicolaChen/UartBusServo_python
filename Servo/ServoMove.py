@@ -29,19 +29,7 @@ class ServoMove:
             if angle > self.angle_range[i]:
                 angle = self.angle_range[i]
 
-            if self.servo_type[i] == "PWM":
-                old_angle = self.pwm_angle[i - 1]
-                step = 10
-                # stepper = (old_angle - angle) / 10
-                # for j in reversed(range(angle, old_angle, stepper)):
-                #     pulse = 2000 * j / self.angle_range[i] + 500
-                #     self.pwm.setServoPulse(j - 1, pulse)
-                for j in numpy.linspace(old_angle, angle, step):
-                    pulse = 2000 * j / self.angle_range[i] + 500
-                    self.pwm.setServoPulse(i - 1, pulse)
-                    time.sleep(0.1)
-                self.pwm_angle[i - 1] = angle
-            else:
+            if self.servo_type[i] != "PWM":
                 step = round(self.step_range[i] * angle / self.angle_range[i])
                 if self.servo_type[i] == "FTT":
                     buf_t = bytes(self.ftMoveT(i + 1, step, angle_matrix[i][1], angle_matrix[i][2]))
@@ -56,6 +44,21 @@ class ServoMove:
 
         self.serial.write(serial_write_buf)
         print(serial_write_buf)
+
+        old_angle_2 = self.pwm_angle[0]
+        old_angle_3 = self.pwm_angle[1]
+        angle_2 = angle_matrix[1][0]
+        angle_3 = angle_matrix[2][0]
+        step = 20
+        time_gap = 0.05
+        for a,b in zip(numpy.linspace(old_angle_2, angle_2, step), numpy.linspace(old_angle_3, angle_3, step)):
+            pulse_2 = 2000 * a / self.angle_range[1] + 500
+            pulse_3 = 2000 * b / self.angle_range[2] + 500
+            self.pwm.setServoPulse(0, pulse_2)
+            self.pwm.setServoPulse(1, pulse_3)
+            time.sleep(time_gap)
+        self.pwm_angle[0] = angle_2
+        self.pwm_angle[1] = angle_3
 
     @staticmethod
     def getLowByte(val):
