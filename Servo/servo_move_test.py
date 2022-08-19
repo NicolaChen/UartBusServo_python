@@ -1,8 +1,6 @@
 from ServoMove import ServoMove
-import serial
 import time
 
-mySerial = serial.Serial('/dev/ttyS4', 115200)
 s = ServoMove()
 
 s.servoMove([[300, 0, 0],
@@ -20,3 +18,5 @@ s.servoMove([[180, 0, 0],
              [30, 0, 0],
              [150, 0, 0],
              [0, 0, 0]])
+
+s.closeSerial()

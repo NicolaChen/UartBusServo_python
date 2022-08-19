@@ -27,12 +27,15 @@ class ServoMove:
                 self.pwm.setServoPulse(i - 1, pulse)
             else:
                 step = round(self.step_range[i] * angle / self.angle_range[i])
-                if self.servo_type == "FTT":
+                if self.servo_type[i] == "FTT":
                     serial_write_buf.append(bytes(self.ftMoveT(step, angle_matrix[i][1], angle_matrix[i][2])))
-                elif self.servo_type == "FTC":
+                elif self.servo_type[i] == "FTC":
                     serial_write_buf.append(bytes(self.ftMoveC(step, angle_matrix[i][1], angle_matrix[i][2])))
                 else:
                     print("Servo%2d move fail!" % (i + 1))
+
+        self.serial.write(serial_write_buf)
+        print(serial_write_buf)
 
     @staticmethod
     def getLowByte(val):
