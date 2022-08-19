@@ -28,9 +28,9 @@ class ServoMove:
             else:
                 step = round(self.step_range[i] * angle / self.angle_range[i])
                 if self.servo_type[i] == "FTT":
-                    serial_write_buf.append(bytes(self.ftMoveT(step, angle_matrix[i][1], angle_matrix[i][2])))
+                    serial_write_buf.append(bytes(self.ftMoveT(i + 1, step, angle_matrix[i][1], angle_matrix[i][2])))
                 elif self.servo_type[i] == "FTC":
-                    serial_write_buf.append(bytes(self.ftMoveC(step, angle_matrix[i][1], angle_matrix[i][2])))
+                    serial_write_buf.append(bytes(self.ftMoveC(i + 1, step, angle_matrix[i][1], angle_matrix[i][2])))
                 else:
                     print("Servo%2d move fail!" % (i + 1))
 
@@ -45,10 +45,10 @@ class ServoMove:
     def getHighByte(val):
         return int(bin(val >> 8)[2:], 2)
 
-    def ftMoveT(self, p, t, v):
+    def ftMoveT(self, n, p, t, v):
         buf = [0 for _ in range(13)]
         buf[0] = buf[1] = 0xFF
-        buf[2] = self.id
+        buf[2] = n
         buf[3] = 9
         buf[4] = 3
         buf[5] = 0x2A
@@ -62,10 +62,10 @@ class ServoMove:
         buf[12] = int(CheckSum(buf[2:-1]).get()[2:], 16)
         return buf
 
-    def ftMoveC(self, p, t, v):
+    def ftMoveC(self, n, p, t, v):
         buf = [0 for _ in range(13)]
         buf[0] = buf[1] = 0xFF
-        buf[2] = self.id
+        buf[2] = n
         buf[3] = 9
         buf[4] = 3
         buf[5] = 0x2A
