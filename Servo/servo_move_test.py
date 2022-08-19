@@ -3,15 +3,20 @@ import serial
 import time
 
 mySerial = serial.Serial('/dev/ttyS4', 115200)
-s1 = ServoMove(mySerial, 1)
-s2 = ServoMove(mySerial, 2)
-s3 = ServoMove(mySerial, 3)
-s4 = ServoMove(mySerial, 4)
-s5 = ServoMove(mySerial, 5)
-s6 = ServoMove(mySerial, 6)
+s = ServoMove()
 
-s2.servoMove(151)
-s3.servoMove(255.43)
+s.servoMove([[300, 0, 0],
+             [180, 0, 0],
+             [180, 0, 0],
+             [120, 0, 0],
+             [0, 0, 0],
+             [180, 0, 0]])
+
 time.sleep(2)
-s2.servoMove(340.2)
-s3.servoMove(0)
+
+s.servoMove([[180, 0, 0],
+             [120, 0, 0],
+             [270, 0, 0],
+             [30, 0, 0],
+             [150, 0, 0],
+             [0, 0, 0]])
