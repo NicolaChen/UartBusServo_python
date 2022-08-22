@@ -1,6 +1,6 @@
 import time
 
-import numpy
+import numpy as np
 import serial
 
 from pwm_servo.PCA9685 import PCA9685
@@ -49,14 +49,26 @@ class ServoMove:
         old_angle_3 = self.pwm_angle[1]
         angle_2 = angle_matrix[1][0]
         angle_3 = angle_matrix[2][0]
-        step = 20
         time_gap = 0.05
-        for a,b in zip(numpy.linspace(old_angle_2, angle_2, step), numpy.linspace(old_angle_3, angle_3, step)):
-            pulse_2 = 2000 * a / self.angle_range[1] + 500
-            pulse_3 = 2000 * b / self.angle_range[2] + 500
+
+        # solve 1
+        # step = 20
+        # for a, b in zip(np.linspace(old_angle_2, angle_2, step), np.linspace(old_angle_3, angle_3, step)):
+        #     pulse_2 = 2000 * a / self.angle_range[1] + 500
+        #     pulse_3 = 2000 * b / self.angle_range[2] + 500
+        #     self.pwm.setServoPulse(0, pulse_2)
+        #     self.pwm.setServoPulse(1, pulse_3)
+        #     time.sleep(time_gap)
+
+        # solve 2
+        delta_x = 0.1
+        for p in np.arange(np.pi / -2, np.pi / 2, delta_x):
+            pulse_2 = 2000 * (old_angle_2 + (angle_2 - old_angle_2) * (np.sin(p) + 1) / 2)
+            pulse_3 = 2000 * (old_angle_3 + (angle_3 - old_angle_3) * (np.sin(p) + 1) / 2)
             self.pwm.setServoPulse(0, pulse_2)
             self.pwm.setServoPulse(1, pulse_3)
             time.sleep(time_gap)
+
         self.pwm_angle[0] = angle_2
         self.pwm_angle[1] = angle_3
 
