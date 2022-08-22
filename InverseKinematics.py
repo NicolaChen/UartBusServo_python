@@ -36,10 +36,7 @@ class IK:
 
     # 给定指定坐标和末端所需4、5关节转角，返回每个关节应该旋转的角度，如果无解返回False
     # coordinate为夹爪末端中心坐标，坐标单位mm， 以元组形式传入，例如(0, 5, 10)
-    # beta4为夹爪所需关节4的转角，以初始态为例，视向平面即为YZ平面；
-    # beta5为夹爪所需关节5的转角，以初始态为例，视向平面即为ZX平面；转角单位deg
     # 设夹持器末端为end(X, Y, Z), 坐标原点为origin(0, 0, 0), 原点为底盘转盘中心在台面的投影， end点在地面的投影为end_p
-    # 初始零位定义：关节1为使臂主体正对工作区，关节4为使45转臂平行正对工作区域，关节5为使5s夹爪铅垂正对工作区域
     # 空间坐标轴放置标准：初始零位下，关节1与工作区中心连线为x轴，臂主体位于ZX平面，z轴垂直与工作平面向上；平面内逆时针旋转角度为正
 
     def getJointsAngles(self, coordinate_s, rot_ox, rot_oy):
@@ -60,30 +57,18 @@ class IK:
             return False
 
         cos_532 = (self.l23 ** 2 + self.l35 ** 2 - dis_ver_5_2 ** 2 - dis_hor_5_2 ** 2) / (2 * self.l23 * self.l35)
-        a520 = atan2(dis_ver_5_2, -dis_hor_5_2)
-        if abs(cos_532) > 1:
-            logger.debug('不能构成连杆结构, abs(cos_532(%s)) >1', cos_532)
+        cos_523 = (self.l23 ** 2 + dis_ver_5_2 ** 2 + dis_hor_5_2 ** 2 - self.l35 ** 2) / \
+                  (2 * self.l23 * sqrt(dis_hor_5_2 ** 2 + dis_ver_5_2 ** 2))
+        a520 = atan2(dis_ver_5_2, -1 * dis_hor_5_2)
+        if a520 < 0:
+            a520 += 2 * pi
+        if abs(cos_523) > 1:
+            logger.debug('不能构成连杆结构, abs(cos_532(%s)) > 1', cos_523)
             return False
-        rot_j2 = degrees(a520 - acos(cos_532))
-        # cos_320 = (self.l23 ** 2 + dis_ver_5_2 ** 2 + dis_hor_5_2 ** 2 - self.l35 ** 2) / \
-        #           (2 * self.l23 * sqrt(dis_ver_5_2 ** 2 + dis_hor_5_2 ** 2))
-
+        rot_j2 = degrees(a520 - acos(cos_523))
         rot_j3 = 270 - degrees(acos(cos_532)) - self.a435
-
-        # if abs(cos_320) > 1:
-        #     logger.debug('不能构成连杆结构, abs(cos_2p(%s)) > 1', cos_320)
-        #     return False
-        # rot_j2 = acos(cos_320) + atan2(dis_ver_5_2, dis_hor_5_2)
-
         rot_j4 = rot_ox
         rot_j5 = rot_oy + 90 - (rot_j2 + rot_j3)
 
         return {"rot_j1": rot_j1, "rot_j2": rot_j2, "rot_j3": rot_j3, "rot_j4": rot_j4, "rot_j5": rot_j5,
                 "coordinate_5": (x0, y0, z0)}  # 暂时使用同轴型末端夹具，故暂不考虑rot_j6的影响
-
-
-if __name__ == '__main__':
-    ik = IK()
-    ik.setLinkLength()
-    print('连杆长度：', ik.getLinkLength())
-    print(ik.getJointsAngles((0, 0, 0), 0, 0))
