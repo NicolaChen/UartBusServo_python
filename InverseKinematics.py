@@ -44,13 +44,15 @@ class IK:
 
     def getJointsAngles(self, coordinate_s, rot_ox, rot_oy):
         x, y, z = coordinate_s
-        x0 = x - self.l5s * sin(rot_oy)
-        y0 = y - self.l5s * cos(rot_oy) * sin(rot_ox)
-        z0 = z - self.l5s * cos(rot_oy) * cos(rot_ox)
+        rad_ox = radians(rot_ox)
+        rad_oy = radians(rot_oy)
+        x0 = x - self.l5s * sin(rad_oy)
+        y0 = y - self.l5s * cos(rad_oy) * cos(rad_ox)
+        z0 = z + self.l5s * cos(rad_oy) * sin(rad_ox)
 
         rot_j1 = degrees(atan2(y0, x0))  # 求底座旋转角度
-        dis_hor_5_2 = sqrt(x0 ** 2 + y0 ** 2) - self.l12 * cos(self.a210)  # end_p到关节2的水平距离
-        dis_ver_5_2 = z0 - self.l12 * sin(self.a210) - self.h1b  # end_p到关节2到垂直距离
+        dis_hor_5_2 = sqrt(x0 ** 2 + y0 ** 2) - self.l12 * cos(radians(self.a210))  # end_p到关节2的水平距离
+        dis_ver_5_2 = z0 - self.l12 * sin(radians(self.a210)) - self.h1b  # end_p到关节2到垂直距离
 
         if self.l23 + self.l35 < sqrt(dis_hor_5_2 ** 2 + dis_ver_5_2 ** 2):  # 两边之和小于第三边
             logger.debug('不能构成连杆结构, l23(%s) + l35sin(%s) < AC(%s)', self.l23, self.l35,
@@ -58,15 +60,15 @@ class IK:
             return False
 
         cos_532 = (self.l23 ** 2 + self.l35 ** 2 - dis_ver_5_2 ** 2 - dis_hor_5_2 ** 2) / (2 * self.l23 * self.l35)
-        cos_520 = atan2(dis_ver_5_2, -dis_hor_5_2)
-        rot_j2 = acos(cos_520) - acos(cos_532)
+        a520 = atan2(dis_ver_5_2, -dis_hor_5_2)
+        if abs(cos_532) > 1:
+            logger.debug('不能构成连杆结构, abs(cos_532(%s)) >1', cos_532)
+            return False
+        rot_j2 = degrees(a520 - acos(cos_532))
         # cos_320 = (self.l23 ** 2 + dis_ver_5_2 ** 2 + dis_hor_5_2 ** 2 - self.l35 ** 2) / \
         #           (2 * self.l23 * sqrt(dis_ver_5_2 ** 2 + dis_hor_5_2 ** 2))
 
-        # if abs(cos_532) > 1:
-        #     logger.debug('不能构成连杆结构, abs(cos_3p(%s)) > 1', cos_532)
-        #     return False
-        rot_j3 = 270 - acos(cos_532) - self.a435
+        rot_j3 = 270 - degrees(acos(cos_532)) - self.a435
 
         # if abs(cos_320) > 1:
         #     logger.debug('不能构成连杆结构, abs(cos_2p(%s)) > 1', cos_320)
