@@ -1,6 +1,8 @@
-from Servo.uart_servo.MyCheckSum import MyCheckSum as CheckSum
 import time
+
 import serial
+
+from Servo.uart_servo.MyCheckSum import MyCheckSum as CheckSum
 
 
 def getLowByte(val):

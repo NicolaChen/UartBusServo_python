@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # encoding:utf-8
-import cv2
 import sys
+
+import cv2
 
 sys.path.append('/home/pi/ArmPi/')
 import math

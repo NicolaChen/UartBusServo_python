@@ -1,14 +1,14 @@
-import time
 import math
+import time
+
 import smbus
 
 
 class PCA9685:
-
   # Registers/etc.
-  __SUBADR1            = 0x02
-  __SUBADR2            = 0x03
-  __SUBADR3            = 0x04
+  __SUBADR1 = 0x02
+  __SUBADR2 = 0x03
+  __SUBADR3 = 0x04
   __MODE1              = 0x00
   __PRESCALE           = 0xFE
   __LED0_ON_L          = 0x06

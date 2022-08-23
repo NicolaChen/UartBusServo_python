@@ -1,10 +1,12 @@
+import time
+
 import cv2
 import numpy as np
-import time
+
 # 找棋盘格角点
 # 阈值
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-#w h分别是棋盘格模板长边和短边规格（角点个数）
+# w h分别是棋盘格模板长边和短边规格（角点个数）
 w = 7
 h = 7
 
@@ -39,6 +41,6 @@ cv2.destroyAllWindows()
 # 标定
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-np.save('./Cali_params/mtx.npy', mtx)
-np.save('./Cali_params/dist.npy', dist)
+np.save('Cali_params/mtx.npy', mtx)
+np.save('Cali_params/dist.npy', dist)
 print('done!')

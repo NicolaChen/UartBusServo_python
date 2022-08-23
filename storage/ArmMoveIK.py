@@ -14,7 +14,7 @@ ik.setLinkLength()
 
 
 class ArmIK:
-
+    """USELESS"""
     def __init__(self):
         pass
 
@@ -64,16 +64,14 @@ class ArmIK:
 
         return movetime
 
-    def setPitchRange(self, coordinate_s, alpha1, alpha2, da=1):
-        # 给定坐标coordinate_data和俯仰角的范围alpha1，alpha2, 自动在范围内寻找到的合适的解
+    def setPitchRange(self, coordinate_s, rot_1, rot_2, delta, step):
+        # 给定坐标coordinate_s和俯仰角的范围alpha1，alpha2, 自动在范围内寻找到的合适的解
         # 如果无解返回False,否则返回对应舵机角度,俯仰角
         # 坐标单位cm， 以元组形式传入，例如(0, 5, 10)
         # da为俯仰角遍历时每次增加的角度
-        x, y, z = coordinate_s
-        if alpha1 >= alpha2:
-            da = -da
-        for alpha in np.arange(alpha1, alpha2, da):  # 遍历求解
-            result = ik.getRotationAngle((x, y, z), alpha)
+        for a, b in zip(np.arange(rot_1, rot_1 + delta * step / abs(step), step),
+                        np.arange(rot_2, rot_2 + delta * step / abs(step), step)):  # 遍历求解
+            result = ik.getJointsAngles(coordinate_s, a, b)
             if result:
                 theta3, theta4, theta5, theta6 = result['theta3'], result['theta4'], result['theta5'], result['theta6']
                 servos = self.transformAngelAdaptArm(theta3, theta4, theta5, theta6)
@@ -82,14 +80,18 @@ class ArmIK:
 
         return False
 
-    def setPitchRangeMoving(self, coordinate_s, alpha, alpha1, alpha2, move_time=None):
+    def setPitchRangeMoving(self, coordinate_s, rot_j4, rot_j5, r_rot_j4, r_rot_j5, move_time=None):
         # 给定坐标coordinate_s、滚转角rot_j4和俯仰角rot_j5，以及两角的范围r_rot_j4、r_rot_j5，自动寻找最接近给定两角的解，并转到目标位置
         # 如果无解返回False,否则返回舵机角度、滚转角、俯仰角、运行时间
         # 坐标单位mm， 以元组形式传入，例如(0, 50, 100)
         # move_time为舵机转动时间，单位ms, 如果不给出时间，则自动计算
         x, y, z = coordinate_s
-        result1 = self.setPitchRange((x, y, z), alpha, alpha1)
-        result2 = self.setPitchRange((x, y, z), alpha, alpha2)
+        for a, b in zip(np.arange(rot_j4 - r_rot_j4, rot_j4 + r_rot_j4, 1),
+                        np.arange(rot_j5 - r_rot_j5, rot_j5 + r_rot_j5, 1)):
+            res = ik.getJointsAngles(coordinate_s, a, b)
+
+        result1 = self.setPitchRange((x, y, z), rot_j4, r_rot_j4)
+        result2 = self.setPitchRange((x, y, z), rot_j5, r_rot_j5)
         if result1 != False:
             data = result1
             if result2 != False:
